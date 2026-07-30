@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# Local runtime data (per-instance, not committed)
+FeynmanTutor/data/
+FeynmanTutor/notes/
+*.sqlite
+*.faiss
+chunks.json
+
+# Local model weights (too large, per-instance)
+models/
+
+# Logs
+*.log
+.vllm_*

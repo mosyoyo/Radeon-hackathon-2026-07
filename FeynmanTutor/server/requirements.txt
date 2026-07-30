@@ -1,0 +1,18 @@
+# Server-side requirements (the inference stack)
+#
+# In the standard Radeon Cloud image, the bulk of the stack is already
+# available in /opt/venv (the official AMD ROCm Python venv). You only need
+# the small extra packages below if /opt/venv is not used.
+#
+# Install with:
+#   pip install -r server/requirements.txt \
+#       --extra-index-url https://repo.radeon.com/rocm/manylinux/rocm-rel-7.2/ \
+#       --trusted-host repo.radeon.com
+
+# vLLM itself — the ROCm wheel is distributed by AMD. Use the extra index
+# above. If your network can't reach repo.radeon.com, the pypi x86_64 build
+# also works for gfx1100 (with HSA_OVERRIDE_GFX_VERSION=11.0.0).
+vllm>=0.6.0
+
+# HuggingFace tooling for model download (also part of /opt/venv by default)
+huggingface_hub>=0.25

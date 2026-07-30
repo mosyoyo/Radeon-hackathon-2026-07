@@ -66,7 +66,47 @@ prompts are ~6K tokens).
 
 ## gfx1100 quirks and the fixes we apply
 
-### 1. `HSA_OVERRIDE_GFX_VERSION` — only if needed
+### 1. Remove the NVIDIA CUDA `flash_attn` build (CRITICAL)
+
+The Radeon Cloud image ships with a `flash_attn` (NVIDIA-CUDA) build
+pre-installed. vLLM's rotary-embedding init runs:
+
+```python
+if find_spec("flash_attn") is not None:
+    from flash_attn.ops.triton.rotary import apply_rotary   # ← BANG
+```
+
+`find_spec` returns truthy because the *package* is there, but importing the
+CUDA .so fails on AMD GPUs with `ModuleNotFoundError: No module named
+'flash_attn_2_cuda'`, and the entire engine startup aborts.
+
+The fix is permanent and simple:
+
+```bash
+pip uninstall -y flash-attn
+```
+
+After that `find_spec("flash_attn")` is `None`, vLLM skips that code path, and
+`VLLM_ATTENTION_BACKEND=ROCM_ATTN` (set in `server/start_vllm.sh`) selects the
+AMD-native attention kernel instead.
+
+### 2. HF_HUB_OFFLINE=1 (model is fully local)
+
+`vllm 0.16` calls `get_model_path` / `maybe_override_with_speculators` even
+for local paths, and the latter tries to phone home to `huggingface.co` for a
+"speculators" config. In regions where `huggingface.co` is blocked (e.g.
+Radeon Cloud), vLLM startup fails with `OSError: We couldn't connect to
+'https://huggingface.co'`.
+
+Setting `HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1` short-circuits both calls.
+
+### 3. Cli arg shape changed in vLLM 0.16
+
+In 0.16 the OpenAI server module no longer accepts the model path as a
+positional argument — the parser silently falls back to a default
+`'Qwen/Qwen3-0.6B'`. We pass it explicitly via `--model /path/...`.
+
+### 4. `HSA_OVERRIDE_GFX_VERSION` — only if needed
 
 gfx1100 is the first consumer RDNA3 ISA that vLLM-ROCm officially
 supports. Wheels built against ROCm 6.x recognize it without an override.
@@ -79,7 +119,7 @@ if ! python -c "import torch; print(torch.cuda.device_count())" 2>/dev/null; the
 fi
 ```
 
-### 2. Eager mode at start-up
+### 4(a). Eager mode at start-up
 
 gfx1100's first inference with `--enforce-eager` takes a noticeable warmup
 (~20–40s) because RDNA3's compiler path includes extra graph passes. The
@@ -94,7 +134,7 @@ script enables eager mode deliberately:
 vllm serve ... --enforce-eager
 ```
 
-### 3. GPU memory headroom
+### 5. GPU memory headroom
 
 We leave 15% of VRAM on the table for safety:
 
@@ -106,7 +146,7 @@ This gives room for the sidecar embedding model to share the card without
 OOMing. Combined with `--max-model-len 8192`, we have space for the agent's
 multi-turn transcript + tool outputs.
 
-### 4. KV cache sizing for agent-style traffic
+### 6. KV cache sizing for agent-style traffic
 
 Agent sessions are bursty: short completions with long context (the history +
 tool results grow). vLLM's PagedAttention handles this well by default; we do

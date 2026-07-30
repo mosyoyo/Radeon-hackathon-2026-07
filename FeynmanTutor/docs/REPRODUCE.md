@@ -99,6 +99,25 @@ pip install -r agent/requirements.txt
 # rich                  (terminal UI)
 ```
 
+### 3.3 (CRITICAL for ROCm) Remove NVIDIA-only `flash_attn` if present
+
+Some Radeon Cloud images ship with the **NVIDIA CUDA build** of
+`flash-attn` pre-installed (it can't actually load on AMD GPUs but vLLM
+checks for it during init). If you see:
+
+```
+ModuleNotFoundError: No module named 'flash_attn_2_cuda'
+```
+
+The fix is one command:
+
+```bash
+pip uninstall -y flash-attn
+```
+
+After that, vLLM's `VLLM_ATTENTION_BACKEND=ROCM_ATTN` (set for you in
+`server/start_vllm.sh`) kicks in and uses the AMD-native attention kernel.
+
 ---
 
 ## 4. Download the model (Qwen2.5-14B-Instruct, bf16)
