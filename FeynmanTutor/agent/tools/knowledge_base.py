@@ -29,6 +29,10 @@ _EMB_MODEL = None
 _EMB_TOK = None
 _EMB_DEVICE = None
 _EMB_DIM = 768  # bge-base hidden size
+EMBEDDING_MODEL_DIR = os.environ.get(
+    "FT_EMBED_MODEL_PATH",
+    "/workspace/persistence/hackathon/models/bge-base-en-v1.5",
+)
 
 
 def _ensure_embedder():
@@ -39,16 +43,9 @@ def _ensure_embedder():
     import torch
     from transformers import AutoTokenizer, AutoModel
 
-    model_id = "BAAI/bge-base-en-v1.5"
-    cache_root = Path(os.environ.get(
-        "FT_EMBED_CACHE",
-        "/workspace/persistence/hackathon/models/bge-base-en-v1.5",
-    ))
-    cache_root.mkdir(parents=True, exist_ok=True)
-
     _EMB_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-    _EMB_TOK = AutoTokenizer.from_pretrained(model_id, cache_dir=str(cache_root))
-    _EMB_MODEL = AutoModel.from_pretrained(model_id, cache_dir=str(cache_root)).to(_EMB_DEVICE)
+    _EMB_TOK = AutoTokenizer.from_pretrained(EMBEDDING_MODEL_DIR, local_files_only=True)
+    _EMB_MODEL = AutoModel.from_pretrained(EMBEDDING_MODEL_DIR, local_files_only=True).to(_EMB_DEVICE)
     _EMB_MODEL.eval()
 
 
