@@ -13,7 +13,14 @@
 
 set -eu
 
-BACKUP_DIR="${OPENCODE_BACKUP_DIR:-$HOME/.opencode-backup}"
+# Prefer the persistent volume (survives instance rebuilds). Fall back to HOME
+# if the persistent path isn't available.
+PERSIST_DIR="${OPENCODE_PERSIST_DIR:-/workspace/persistence/opencode-backup}"
+if [[ -d /workspace/persistence && -w /workspace/persistence ]]; then
+    BACKUP_DIR="${OPENCODE_BACKUP_DIR:-$PERSIST_DIR}"
+else
+    BACKUP_DIR="${OPENCODE_BACKUP_DIR:-$HOME/.opencode-backup}"
+fi
 SRC_CONFIG="$HOME/.config/opencode"
 SRC_DATA="$HOME/.local/share/opencode"
 
@@ -44,13 +51,9 @@ cp -f "$SRC_CONFIG/opencode.jsonc" "$BACKUP_DIR/opencode.jsonc" 2>/dev/null || e
 chmod 600 "$BACKUP_DIR/auth.json" 2>/dev/null || true
 
 echo
-echo "✓ Backup written to $BACKUP_DIR"
+echo "✓ Backup written to $BACKUP_DIR (persistent volume — survives rebuilds)"
 echo
 echo "⚠️  This backup contains API keys — do NOT push it to GitHub."
-echo "   Copy it somewhere safe on YOUR OWN machine:"
-echo
-echo "   scp root@<host>:$BACKUP_DIR ~/opencode-backup"
-echo
 echo "   After rebuilding the instance, restore with:"
 echo "   bash FeynmanTutor/scripts/backup_opencode.sh --restore"
 ls -la "$BACKUP_DIR"

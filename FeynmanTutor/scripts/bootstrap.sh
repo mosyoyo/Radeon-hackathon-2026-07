@@ -22,6 +22,10 @@
 set -eu
 
 # ---- config ----------------------------------------------------------------
+# NOTE: /workspace/persistence is a PERSISTENT volume on this Radeon Cloud
+# instance — code and models under it survive instance rebuilds. If you
+# rebuilt the instance, the repo + models are already here and the model
+# download steps below are skipped automatically.
 REPO_DIR="${FT_REPO_DIR:-/workspace/persistence/hackathon/Radeon-hackathon-2026-07}"
 MODELS_DIR="${FT_MODELS_DIR:-/workspace/persistence/hackathon/models}"
 FORK_URL="${FT_FORK_URL:-https://github.com/mosyoyo/Radeon-hackathon-2026-07.git}"
