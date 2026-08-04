@@ -17,3 +17,4 @@ models/
 # Logs
 *.log
 .vllm_*
+.ipynb_checkpoints/

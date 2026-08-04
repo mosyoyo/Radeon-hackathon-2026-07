@@ -100,7 +100,11 @@ class Agent:
             self.history.append(tool_event)
             self._persist({"role": "tool", "tool": name, "arguments": args, "result": result})
 
-        return {"kind": "tool", "tool_names": [c.function.name for c in msg.tool_calls]}
+        return {
+            "kind": "tool",
+            "tool_names": [c.function.name for c in msg.tool_calls],
+            "content": msg.content or "",  # preamble text (if any) before tool calls
+        }
 
     def add_user_message(self, text: str) -> None:
         """Trampoline for the CLI runner to inject a learner reply."""
