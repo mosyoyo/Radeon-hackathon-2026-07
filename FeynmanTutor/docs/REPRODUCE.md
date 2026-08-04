@@ -176,24 +176,58 @@ python agent/run_cli.py
 # > I want to learn "the CAP theorem"
 ```
 
----
+## 7. Web front-end
 
-## 7. (Optional) Expose the server to the internet
+A FastAPI + SSE chat UI is included:
+
+```bash
+bash server/start_web.sh            # binds 127.0.0.1:8500
+```
+
+Open <http://127.0.0.1:8500> in a browser. Type "我想学 Raft 共识算法" and
+watch the agent decompose the skill, search for material, Feynman-explain,
+and quiz you — streaming tool calls live.
+
+## 8. (Optional) Expose the server to the internet
+
+### 8a. rc-tunnel (official Radeon Cloud)
 
 The Radeon Cloud platform ships `rc-tunnel` (see the platform's user guide):
 
 ```bash
 /var/run/secrets/frp-self-service/install
-$HOME/.local/bin/rc-tunnel expose --port 8000
+$HOME/.local/bin/rc-tunnel expose --port 8500
 # returns https://rc-<random>.radeon.firstdg.ai
 ```
 
 Point any OpenAI-compatible client at `https://rc-<random>.radeon.firstdg.ai/v1`
 and model `Qwen/Qwen2.5-14B-Instruct`.
 
+> ⚠️ rc-tunnel only works on Notebook instances created **after** the feature
+> was enabled. If `/var/run/secrets/frp-self-service/install` fails with
+> `FRP_BROKER_URL is not injected`, you are on an old Pod — destroy the
+> instance and relaunch (with Persistent PVC storage) to get a new one.
+
+### 8b. Cloudflare Tunnel (third-party alternative)
+
+If you can't recreate the instance, a Cloudflare Quick Tunnel needs no
+account and no public server:
+
+```bash
+# download cloudflared (any arch)
+curl -L -o /tmp/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+chmod +x /tmp/cloudflared
+
+# get a public HTTPS url in seconds
+/tmp/cloudflared tunnel --url http://127.0.0.1:8500
+# prints: https://<random>.trycloudflare.com  ← this is your public URL
+```
+
+Both tunnels keep the OpenAI-compatible API reachable remotely.
+
 ---
 
-## 8. Troubleshooting
+## 9. Troubleshooting
 
 | Symptom                                                | Fix                                                                                          |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
@@ -207,7 +241,7 @@ and model `Qwen/Qwen2.5-14B-Instruct`.
 
 ---
 
-## 9. What you should see at the end
+## 10. What you should see at the end
 
 A successful end-to-end run yields something like the saved transcript in
 `examples/session_raft.jsonl`:
