@@ -89,7 +89,6 @@ else
   log "2/5 下载模型（~31GB，已存在则跳过）"
   mkdir -p "$MODELS_DIR"
   export HF_ENDPOINT=https://hf-mirror.com
-  DL=/opt/venv/bin/python -m huggingface_hub.commands.huggingface_cli download
   for pair in "$DIALOGUE_MODEL:$DIALOGUE_DIR" "$BATCH_MODEL:$BATCH_DIR" "$EMBED_MODEL:$EMBED_DIR"; do
     repo="${pair%%:*}"; dir="${pair#*:}"
     if [ -f "$dir/config.json" ]; then
