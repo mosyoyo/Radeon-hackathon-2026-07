@@ -17,7 +17,7 @@ set -uo pipefail
 
 # 比赛 fork 仓库（提交 PR 的目标仓库）。可用 --repo 覆盖。
 REPO_URL="${REPO_URL:-https://github.com/mosyoyo/Radeon-hackathon-2026-07.git}"
-REPO_BRANCH="${REPO_BRANCH:-feature/knowledge-garden}"
+REPO_BRANCH="${REPO_BRANCH:-main}"
 WORK_ROOT="${WORK_ROOT:-/persistent}"
 MODELS_DIR="${MODELS_DIR:-/persistent/models}"
 SKIP_MODELS=0
