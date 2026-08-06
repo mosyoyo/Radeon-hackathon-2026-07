@@ -91,12 +91,17 @@ else
   export HF_ENDPOINT=https://hf-mirror.com
   for pair in "$DIALOGUE_MODEL:$DIALOGUE_DIR" "$BATCH_MODEL:$BATCH_DIR" "$EMBED_MODEL:$EMBED_DIR"; do
     repo="${pair%%:*}"; dir="${pair#*:}"
-    if [ -f "$dir/config.json" ]; then
+    # 完整性检查：config.json 存在 且 至少一个权重文件已就位（防断点续传漏下主体）
+    has_cfg=""; has_wt=""
+    [ -f "$dir/config.json" ] && has_cfg=1
+    ls "$dir"/*.safetensors >/dev/null 2>&1 && has_wt=1
+    ls "$dir"/*.bin >/dev/null 2>&1 && has_wt=1
+    if [ -n "$has_cfg" ] && [ -n "$has_wt" ]; then
       ok "模型已存在: $repo"
     else
-      log "下载 $repo → $dir"
+      log "下载 $repo → $dir（$([ -n "$has_cfg" ] && echo 续传 || echo 全新)）"
       /opt/venv/bin/python -m huggingface_hub.commands.huggingface_cli download \
-        "$repo" --local-dir "$dir" || fail "下载失败: $repo"
+        "$repo" --local-dir "$dir" --resume-download || fail "下载失败: $repo"
       ok "$repo"
     fi
   done
