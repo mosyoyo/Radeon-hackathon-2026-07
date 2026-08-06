@@ -57,6 +57,9 @@ both models co-reside on one 48 GB card (42 GB total, 6 GB headroom).
 ## Quick start
 
 ```bash
+# the project lives in Knowledge-Garden/
+cd Knowledge-Garden
+
 # 1) start the dialogue model (must be first, wait until ready)
 bash scripts/start_vllm.sh /path/to/Qwen2.5-14B-Instruct-AWQ Qwen2.5-14B-AWQ 8000 0.3 8192
 
@@ -64,27 +67,27 @@ bash scripts/start_vllm.sh /path/to/Qwen2.5-14B-Instruct-AWQ Qwen2.5-14B-AWQ 800
 bash scripts/start_vllm.sh /path/to/Qwen2.5-32B-Instruct-AWQ Qwen2.5-32B-AWQ 8001 0.5 4096
 
 # 3) start the backend (SPA fallback serves the web UI)
-cd /persistent/learning-companion && /opt/venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8510
+/opt/venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8510
 
 # 4) open http://127.0.0.1:8510 and upload a .md file to begin learning
 ```
 
-Full reproduction steps: **[docs/REPRODUCE.md](docs/REPRODUCE.md)**
+Full reproduction steps: **[docs/REPRODUCE.md](Knowledge-Garden/docs/REPRODUCE.md)**
 
 ## Documentation
 
 | Document | Purpose |
 |---|---|
-| [docs/SPECIFICATION.md](docs/SPECIFICATION.md) | Application scenario, architecture, core capabilities, deployment plan |
-| [docs/Knowledge-Garden-Specification.pdf](docs/Knowledge-Garden-Specification.pdf) | Project Specification in PDF form (submission-ready) |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture diagram & component responsibilities |
-| [docs/ROCM_OPTIMIZATION.md](docs/ROCM_OPTIMIZATION.md) | AMD Radeon GPU / ROCm optimization notes with benchmark tables |
-| [docs/REPRODUCE.md](docs/REPRODUCE.md) | Step-by-step reproduction from scratch |
-| [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | Narration script for the 3-5 minute demo video |
+| [docs/SPECIFICATION.md](Knowledge-Garden/docs/SPECIFICATION.md) | Application scenario, architecture, core capabilities, deployment plan |
+| [Knowledge-Garden-Specification.pdf](Knowledge-Garden/docs/Knowledge-Garden-Specification.pdf) | Project Specification in PDF form (submission-ready) |
+| [docs/ARCHITECTURE.md](Knowledge-Garden/docs/ARCHITECTURE.md) | System architecture diagram & component responsibilities |
+| [docs/ROCM_OPTIMIZATION.md](Knowledge-Garden/docs/ROCM_OPTIMIZATION.md) | AMD Radeon GPU / ROCm optimization notes with benchmark tables |
+| [docs/REPRODUCE.md](Knowledge-Garden/docs/REPRODUCE.md) | Step-by-step reproduction from scratch |
+| [docs/DEMO_SCRIPT.md](Knowledge-Garden/docs/DEMO_SCRIPT.md) | Narration script for the 3-5 minute demo video |
 
 ## Demo video
 
-[`docs/demo/knowledge-garden-demo.mp4`](docs/demo/knowledge-garden-demo.mp4)
+[`docs/demo/knowledge-garden-demo.mp4`](Knowledge-Garden/docs/demo/knowledge-garden-demo.mp4)
 — a 4-minute walkthrough recorded on the real AMD Radeon GPU: GPU/ROCm
 verification, dual-model check, Markdown upload, live extraction completion,
 source-document rendering, Feynman learning, assessment and review —
@@ -102,13 +105,13 @@ with English narration and burned-in subtitles.
 
 | Layer | Dependencies |
 |---|---|
-| Runtime | Python 3.12, ROCm 7.2.x, vLLM 0.16.1 (ROCm build), PyTorch (ROCm) — see [requirements.txt](requirements.txt) |
+| Runtime | Python 3.12, ROCm 7.2.x, vLLM 0.16.1 (ROCm build), PyTorch (ROCm) — see [requirements.txt](Knowledge-Garden/requirements.txt) |
 | Backend | FastAPI, Uvicorn, Pydantic v2, SQLite (stdlib `sqlite3`), httpx |
 | Frontend | Node.js 20+, React 19, Vite 8, TypeScript 6, Tailwind CSS v4, react-markdown, remark-gfm |
 | Models | Qwen2.5-14B-Instruct-AWQ, Qwen2.5-32B-Instruct-AWQ, BAAI/bge-base-en-v1.5 |
 | Testing | unittest (backend), Playwright 1.62 (e2e) |
 
-See `docs/REPRODUCE.md` for the full environment setup.
+See `Knowledge-Garden/docs/REPRODUCE.md` for the full environment setup.
 
 ## Repository layout
 
